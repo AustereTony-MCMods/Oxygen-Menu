@@ -1,2 +1,3 @@
 # Oxygen-Menu
-All Oxygen menus in one.
+All oxygen menus in one.
+Project page: https://www.curseforge.com/minecraft/mc-mods/oxygen-menu
