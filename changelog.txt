@@ -1,2 +1,5 @@
+0.9.0b [2019-09-20]
++Compatibility with Oxygen Core 0.9.
+
 0.8.0b [2019-08-12]
 +Initial release.
