@@ -1,22 +1,23 @@
 package austeretony.oxygen_menu.client.gui.menu;
 
-import austeretony.oxygen.client.core.api.ClientReference;
-import austeretony.oxygen.client.gui.AbstractMenuEntry;
-import austeretony.oxygen.client.gui.IndexedGUIButton;
-import austeretony.oxygen.client.gui.settings.GUISettings;
-import austeretony.oxygen.common.main.OxygenSoundEffects;
+import austeretony.alternateui.util.EnumGUIAlignment;
+import austeretony.oxygen_core.client.api.ClientReference;
+import austeretony.oxygen_core.client.gui.IndexedGUIButton;
+import austeretony.oxygen_core.client.gui.elements.CustomRectUtils;
+import austeretony.oxygen_core.client.gui.menu.OxygenMenuEntry;
+import austeretony.oxygen_core.client.gui.settings.GUISettings;
+import austeretony.oxygen_core.common.sound.OxygenSoundEffects;
 import net.minecraft.client.renderer.GlStateManager;
 
-public class MenuGUIButton extends IndexedGUIButton<AbstractMenuEntry> {
+public class MenuGUIButton extends IndexedGUIButton<OxygenMenuEntry> {
 
     private final String key;
 
-    public MenuGUIButton(AbstractMenuEntry entry) {
+    public MenuGUIButton(OxygenMenuEntry entry) {
         super(entry);
-        this.key = "[" + String.valueOf(entry.index + 1) + "]";
-        this.setTexture(entry.getIcon());
+        this.key = "[" + String.valueOf(entry.getIndex() + 1) + "]";
         this.setDisplayText(ClientReference.localize(entry.getName()));
-        this.enableDynamicBackground(GUISettings.instance().getEnabledElementColor(), GUISettings.instance().getEnabledElementColor(), GUISettings.instance().getHoveredElementColor());
+        this.enableDynamicBackground(GUISettings.get().getEnabledElementColor(), GUISettings.get().getEnabledElementColor(), GUISettings.get().getHoveredElementColor());
         this.setSound(OxygenSoundEffects.BUTTON_CLICK.soundEvent);
         this.enableFull();
     }
@@ -44,23 +45,17 @@ public class MenuGUIButton extends IndexedGUIButton<AbstractMenuEntry> {
                 iconU = 28;                      
             }
 
-            MenuGUIFiller.drawGradient(0, 0, this.getWidth(), this.getHeight(), 0x00000000, color);
+            CustomRectUtils.drawGradientRect(0.0D, 0.0D, this.getWidth(), this.getHeight(), 0x00000000, color, EnumGUIAlignment.RIGHT);
 
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
             GlStateManager.pushMatrix();           
-            GlStateManager.translate(this.getWidth() - this.textWidth(this.getDisplayText(), this.getTextScale()) - 6.0F/*18.0F*/, textY, 0.0F); 
+            GlStateManager.translate(this.getWidth() - this.textWidth(this.getDisplayText(), this.getTextScale()) - 6.0F, textY, 0.0F); 
             GlStateManager.scale(this.getTextScale(), this.getTextScale(), 0.0F); 
             this.mc.fontRenderer.drawString(this.getDisplayText(), 0, 0, textColor, this.isTextShadowEnabled());
             if (this.isHovered())
                 this.mc.fontRenderer.drawString(this.key, - this.textWidth(this.key, this.getTextScale()) - 10, 0, this.getDisabledTextColor(), this.isTextShadowEnabled());
             GlStateManager.popMatrix();
-
-            //TODO Setup textures first
-            /*GlStateManager.enableBlend(); 
-            this.mc.getTextureManager().bindTexture(this.getTexture());                        
-            drawCustomSizedTexturedRect(this.getWidth() - 16, 3, iconU, 0, 14, 14, 42, 14);
-            GlStateManager.disableBlend();*/
 
             GlStateManager.popMatrix();
         }

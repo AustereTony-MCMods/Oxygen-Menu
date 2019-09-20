@@ -1,7 +1,7 @@
 package austeretony.oxygen_menu.common.main;
 
-import austeretony.oxygen.client.gui.OxygenMenuManager;
-import austeretony.oxygen.common.core.api.CommonReference;
+import austeretony.oxygen_core.client.gui.menu.OxygenMenuManager;
+import austeretony.oxygen_core.common.api.CommonReference;
 import austeretony.oxygen_menu.client.input.OxygenMenuKeyHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -13,8 +13,8 @@ import net.minecraftforge.fml.relauncher.Side;
         modid = OxygenMenuMain.MODID, 
         name = OxygenMenuMain.NAME, 
         version = OxygenMenuMain.VERSION,
+        dependencies = "required-after:oxygen_core@[0.9.0,);",
         clientSideOnly = true,
-        dependencies = "required-after:oxygen@[0.8.2,);",//TODO Always check required Oxygen version before build
         certificateFingerprint = "@FINGERPRINT@",
         updateJSON = OxygenMenuMain.VERSIONS_FORGE_URL)
 public class OxygenMenuMain {
@@ -22,7 +22,7 @@ public class OxygenMenuMain {
     public static final String 
     MODID = "oxygen_menu",    
     NAME = "Oxygen: Menu",
-    VERSION = "0.8.0",
+    VERSION = "0.9.0",
     VERSION_CUSTOM = VERSION + ":beta:0",
     GAME_VERSION = "1.12.2",
     VERSIONS_FORGE_URL = "https://raw.githubusercontent.com/AustereTony-MCMods/Oxygen-Menu/info/mod_versions_forge.json";
