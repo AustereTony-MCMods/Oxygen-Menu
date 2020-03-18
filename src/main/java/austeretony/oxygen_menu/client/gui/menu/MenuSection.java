@@ -7,30 +7,33 @@ import austeretony.oxygen_core.client.api.EnumBaseGUISetting;
 import austeretony.oxygen_core.client.api.OxygenMenuHelper;
 import austeretony.oxygen_core.client.gui.elements.OxygenScrollablePanel;
 import austeretony.oxygen_core.client.gui.menu.OxygenMenuEntry;
-import austeretony.oxygen_menu.client.input.OxygenMenuKeyHandler;
+import austeretony.oxygen_menu.common.config.OxygenMenuConfig;
 
 public class MenuSection extends AbstractGUISection {
+
+    private OxygenMenuScreen screen;
 
     private OxygenScrollablePanel entriesPanel;
 
     public MenuSection(OxygenMenuScreen screen) {
         super(screen);
+        this.screen = screen;
     }
 
     @Override
     public void init() {
-        this.addElement(new MenuBackgroundFiller(0, 0, this.getWidth(), this.getHeight()));
+        this.addElement(new MenuBackgroundFiller(0, 0, this.getWidth(), this.getHeight(), this.screen.getMenuAlignment()));
 
         int amount = OxygenMenuScreen.getEntriesAmount();
         this.addElement(this.entriesPanel = new OxygenScrollablePanel(this.screen, 0, 0, 100, 18, 1, amount, amount, EnumBaseGUISetting.TEXT_SCALE.get().asFloat(), false));
         for (OxygenMenuEntry entry : OxygenMenuHelper.getOxygenMenuEntries())
             if (entry.isValid())
-                this.entriesPanel.addEntry(new MenuPanelEntry(entry));
+                this.entriesPanel.addEntry(new MenuPanelEntry(this.screen.getMenuAlignment(), entry));
 
-        this.entriesPanel.<MenuPanelEntry>setClickListener((previous, clicked, mouseX, mouseY, mouseButton)->{
+        this.entriesPanel.<MenuPanelEntry>setElementClickListener((previous, clicked, mouseX, mouseY, mouseButton)->{
             if (mouseButton == 0) {
                 this.screen.close();
-                ClientReference.delegateToClientThread(()->clicked.index.open());                
+                ClientReference.delegateToClientThread(clicked.getWrapped()::open);                
             }
         });
     }
@@ -40,14 +43,16 @@ public class MenuSection extends AbstractGUISection {
 
     @Override
     public boolean keyTyped(char typedChar, int keyCode) {   
-        if (keyCode == OxygenMenuKeyHandler.OXYGEN_MENU.getKeyCode())
+        if (keyCode == OxygenMenuConfig.OXYGEN_MENU_KEY.asInt())
             this.screen.close();
-        for (OxygenMenuEntry entry : OxygenMenuHelper.getOxygenMenuEntries())
-            if (entry.isValid())
+        for (OxygenMenuEntry entry : OxygenMenuHelper.getOxygenMenuEntries()) {
+            if (entry.isValid()) {
                 if (keyCode == entry.getKeyCode()) {
                     this.screen.close();
-                    ClientReference.delegateToClientThread(()->entry.open());                
+                    ClientReference.delegateToClientThread(entry::open);                
                 }
+            }
+        }
         return super.keyTyped(typedChar, keyCode); 
     }
 }

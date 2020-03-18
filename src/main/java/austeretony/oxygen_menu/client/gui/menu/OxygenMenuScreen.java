@@ -7,15 +7,33 @@ import austeretony.alternateui.screen.core.GUIWorkspace;
 import austeretony.alternateui.util.EnumGUIAlignment;
 import austeretony.oxygen_core.client.api.OxygenMenuHelper;
 import austeretony.oxygen_core.client.gui.menu.OxygenMenuEntry;
+import austeretony.oxygen_menu.client.settings.gui.EnumOxygenMenuGUISetting;
 
 public class OxygenMenuScreen extends AbstractGUIScreen {
 
     private AbstractGUISection menuSection;
 
+    private EnumGUIAlignment menuAlignment;
+
     @Override
     protected GUIWorkspace initWorkspace() {
+        EnumGUIAlignment alignment = EnumGUIAlignment.RIGHT;
+        switch (EnumOxygenMenuGUISetting.OXYGEN_MENU_ALIGNMENT.get().asInt()) {
+        case - 1: 
+            alignment = EnumGUIAlignment.LEFT;
+            break;
+        case 0:
+            alignment = EnumGUIAlignment.CENTER;
+            break;
+        case 1:
+            alignment = EnumGUIAlignment.RIGHT;
+            break;    
+        default:
+            alignment = EnumGUIAlignment.CENTER;
+            break;
+        }
         int amount = getEntriesAmount();
-        return new GUIWorkspace(this, 100, amount * 18 + (amount - 1)).setAlignment(EnumGUIAlignment.RIGHT, 0, 0);
+        return new GUIWorkspace(this, 100, amount * 18 + (amount - 1)).setAlignment(this.menuAlignment = alignment, 0, 0);
     }
 
     @Override
@@ -42,5 +60,9 @@ public class OxygenMenuScreen extends AbstractGUIScreen {
             if (entry.isValid())
                 i++;
         return i;
+    }
+
+    public EnumGUIAlignment getMenuAlignment() {
+        return this.menuAlignment;
     }
 }
