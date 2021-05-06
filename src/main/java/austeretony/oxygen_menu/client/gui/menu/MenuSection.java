@@ -1,58 +1,62 @@
 package austeretony.oxygen_menu.client.gui.menu;
 
-import austeretony.alternateui.screen.core.AbstractGUISection;
-import austeretony.alternateui.screen.core.GUIBaseElement;
-import austeretony.oxygen_core.client.api.ClientReference;
-import austeretony.oxygen_core.client.api.EnumBaseGUISetting;
-import austeretony.oxygen_core.client.api.OxygenMenuHelper;
-import austeretony.oxygen_core.client.gui.elements.OxygenScrollablePanel;
+import austeretony.oxygen_core.client.api.OxygenClient;
+import austeretony.oxygen_core.client.gui.base.core.Section;
+import austeretony.oxygen_core.client.gui.base.list.ScrollableList;
 import austeretony.oxygen_core.client.gui.menu.OxygenMenuEntry;
-import austeretony.oxygen_menu.common.config.OxygenMenuConfig;
+import austeretony.oxygen_menu.common.config.MenuConfig;
+import austeretony.oxygen_menu.common.main.MenuMain;
+import net.minecraft.client.settings.KeyBinding;
+import org.lwjgl.input.Mouse;
 
-public class MenuSection extends AbstractGUISection {
+public class MenuSection extends Section {
 
-    private OxygenMenuScreen screen;
+    private final MenuScreen screen;
 
-    private OxygenScrollablePanel entriesPanel;
-
-    public MenuSection(OxygenMenuScreen screen) {
-        super(screen);
+    public MenuSection(MenuScreen screen) {
+        super(screen, "", true);
         this.screen = screen;
     }
 
     @Override
     public void init() {
-        this.addElement(new MenuBackgroundFiller(0, 0, this.getWidth(), this.getHeight(), this.screen.getMenuAlignment()));
+        addWidget(new MenuBackground(this, screen.screenAlignment));
 
-        int amount = OxygenMenuScreen.getEntriesAmount();
-        this.addElement(this.entriesPanel = new OxygenScrollablePanel(this.screen, 0, 0, 100, 18, 1, amount, amount, EnumBaseGUISetting.TEXT_SCALE.get().asFloat(), false));
-        for (OxygenMenuEntry entry : OxygenMenuHelper.getOxygenMenuEntries())
-            if (entry.isValid())
-                this.entriesPanel.addEntry(new MenuPanelEntry(this.screen.getMenuAlignment(), entry));
+        ScrollableList<OxygenMenuEntry> scrollableList;
+        addWidget(scrollableList = new ScrollableList<>(0, 0, screen.entriesList.size(),
+                screen.getWorkspace().getWidth(), MenuScreen.MENU_ENTRY_HEIGHT)
+                .<OxygenMenuEntry>setEntryMouseClickListener((previous, current, x, y, button) -> {
+                    screen.close();
 
-        this.entriesPanel.<MenuPanelEntry>setElementClickListener((previous, clicked, mouseX, mouseY, mouseButton)->{
-            if (mouseButton == 0) {
-                this.screen.close();
-                ClientReference.delegateToClientThread(clicked.getWrapped()::open);                
-            }
-        });
+                    int cursorX = Mouse.getX();
+                    int cursorY = Mouse.getY();
+                    MenuScreen.openScreen(current.getEntry());
+                    Mouse.setCursorPosition(cursorX, cursorY);
+                }));
+
+        for (OxygenMenuEntry entry : screen.entriesList) {
+            scrollableList.addElement(new MenuListEntry(entry, screen.screenAlignment));
+        }
     }
 
     @Override
-    public void handleElementClick(AbstractGUISection section, GUIBaseElement element, int mouseButton) {}
+    public void keyTyped(char typedChar, int keyCode) {
+        KeyBinding keyBinding = OxygenClient.getKeyBinding(MenuMain.KEYBINDING_ID_OPEN_OXYGEN_MENU);
+        if (MenuConfig.ENABLE_OXYGEN_MENU_SCREEN_KEY.asBoolean()
+                && keyBinding != null && keyCode == keyBinding.getKeyCode()) {
+            screen.close();
+        }
+        for (OxygenMenuEntry entry : screen.entriesList) {
+            if (keyCode == entry.getKeyCode()) {
+                screen.close();
 
-    @Override
-    public boolean keyTyped(char typedChar, int keyCode) {   
-        if (keyCode == OxygenMenuConfig.OXYGEN_MENU_KEY.asInt())
-            this.screen.close();
-        for (OxygenMenuEntry entry : OxygenMenuHelper.getOxygenMenuEntries()) {
-            if (entry.isValid()) {
-                if (keyCode == entry.getKeyCode()) {
-                    this.screen.close();
-                    ClientReference.delegateToClientThread(entry::open);                
-                }
+                int cursorX = Mouse.getX();
+                int cursorY = Mouse.getY();
+                MenuScreen.openScreen(entry);
+                Mouse.setCursorPosition(cursorX, cursorY);
+                break;
             }
         }
-        return super.keyTyped(typedChar, keyCode); 
+        super.keyTyped(typedChar, keyCode);
     }
 }
